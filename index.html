@@ -1885,5 +1885,101 @@ function closeModal() {
 
 window.onload = init;
 </script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 1. Connect to your secure Supabase database
+  const SUPABASE_URL = "https://svbgjxkwhifdeoqpufku.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_-Yav1N_7mqHVvBeFKCEc-Q_G_TYb6_q";
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // 2. Inject sleek UI Login interface onto the page automatically
+  const authStyles = document.createElement('style');
+  authStyles.innerHTML = `
+    #auth-bar { position: fixed; top: 10px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.85); padding: 8px 15px; border-radius: 20px; border: 1px solid #333; color: #fff; font-family: sans-serif; font-size: 14px; display: flex; gap: 10px; align-items: center; }
+    #auth-bar button { background: #0070f3; color: white; border: none; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+    #auth-bar button:hover { background: #0051a8; }
+    .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 1px solid #333; padding: 25px; border-radius: 12px; z-index: 2000; color: white; font-family: sans-serif; width: 300px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .auth-modal input { width: 100%; padding: 10px; margin: 8px 0; background: #222; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
+    .auth-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1999; display:none; }
+  `;
+  document.head.appendChild(authStyles);
+
+  const authBar = document.createElement('div');
+  authBar.id = 'auth-bar';
+  authBar.innerHTML = `<span id="auth-status">Loading account...</span><button id="auth-btn" style="display:none;"></button>`;
+  document.body.appendChild(authBar);
+
+  const modalOverlay = document.createElement('div');
+  modalOverlay.className = 'auth-overlay';
+  const modal = document.createElement('div');
+  modal.className = 'auth-modal';
+  modal.innerHTML = `
+    <h3 style="margin-top:0;" id="modal-title">Sign In / Create Account</h3>
+    <input type="email" id="auth-email" placeholder="Email Address">
+    <input type="password" id="auth-password" placeholder="Password (min 6 chars)">
+    <input type="text" id="auth-username" placeholder="Pick a Username (New Users)">
+    <button id="modal-submit" style="width:100%; padding:10px; background:#0070f3; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px;">Continue</button>
+    <p style="font-size:11px; color:#888; text-align:center; margin-bottom:0; cursor:pointer;" id="modal-toggle">Switch between Login / Sign Up</p>
+  `;
+  document.body.appendChild(modalOverlay);
+  document.body.appendChild(modal);
+
+  let isSignUp = false;
+
+  // 3. Authentication Management Logic
+  async function checkUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const authStatus = document.getElementById('auth-status');
+    const authBtn = document.getElementById('auth-btn');
+
+    if (user) {
+      const { data } = await supabase.from('profiles').select('username, points').eq('id', user.id).single();
+      const displayName = data?.username || user.email.split('@')[0];
+      const userPoints = data?.points || 0;
+      authStatus.innerText = `${displayName} (${userPoints} pts)`;
+      authBtn.innerText = "Log Out";
+      authBtn.style.display = "inline-block";
+      authBtn.onclick = async () => { await supabase.auth.signOut(); location.reload(); };
+    } else {
+      authStatus.innerText = "Playing as Guest";
+      authBtn.innerText = "Login / Register";
+      authBtn.style.display = "inline-block";
+      authBtn.onclick = () => { modal.style.display = 'block'; modalOverlay.style.display = 'block'; };
+    }
+  }
+
+  document.getElementById('modal-toggle').onclick = () => {
+    isSignUp = !isSignUp;
+    document.getElementById('modal-title').innerText = isSignUp ? "Create Free Account" : "Sign In To Play";
+    document.getElementById('auth-username').style.display = isSignUp ? "block" : "none";
+  };
+  document.getElementById('auth-username').style.display = "none";
+
+  modalOverlay.onclick = () => { modal.style.display = 'none'; modalOverlay.style.display = 'none'; };
+
+  document.getElementById('modal-submit').onclick = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value;
+
+    if (!email || !password) return alert("Please fill out your details.");
+
+    if (isSignUp) {
+      if (!username) return alert("Please choose a username.");
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) return alert(error.message);
+      if (data?.user) {
+        await supabase.from('profiles').insert([{ id: data.user.id, username: username, points: 0, entries_count: 0 }]);
+        alert("Account created successfully! Check your email for a confirmation link.");
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return alert(error.message);
+    }
+    location.reload();
+  };
+
+  checkUser();
+</script>
 </body>
 </html>
