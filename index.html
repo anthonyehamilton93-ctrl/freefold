@@ -816,7 +816,7 @@
 <!-- FIXTURE SELECTION -->
 <div class="screen active" id="screen-selector">
   <div class="section">
-    <div class="section-header"><h2>SELECT WORLD CUP FIXTURE</h2></div>
+    <div class="section-header"><h2>SELECT A FIXTURE</h2></div>
   </div>
   <div class="selector-container" id="fixtureSelectorGrid"></div>
 </div>
@@ -824,7 +824,7 @@
 <!-- GAME -->
 <div class="screen" id="screen-game">
   <div class="expiry-banner">
-    <p><span id="activeFixtureLabel">MATCH</span> | LOCKS IN: <span id="expiryTimer">00D 00H 00M</span></p>
+    <p><span id="activeFixtureLabel">MATCH</span> | KICKS OFF IN: <span id="expiryTimer">00D 00H 00M</span></p>
   </div>
   
   <div class="section">
@@ -865,7 +865,7 @@
 <!-- LOCKED / ENTRY COMPLETE -->
 <div class="screen" id="screen-locked">
   <div class="section" style="padding-top:20px;">
-    <div class="section-header"><h2>WORLD CUP MATRIX LOCKED</h2></div>
+    <div class="section-header"><h2>SELECTIONS LOCKED</h2></div>
   </div>
   <div class="locked-banner">
     <h3 id="lockedTitle">ENTERED!</h3>
@@ -1419,9 +1419,9 @@ function updateInstruction() {
   if (!bar) return;
   var p = bar.querySelector('p');
   var totalAssigned = Object.keys(assignments).length;
-  if (totalAssigned === 3) { p.textContent = 'MATRIX LOCKED. TAP LOCK IN TO CONFIRM YOUR ENTRY.'; }
+  if (totalAssigned === 3) { p.textContent = 'SELECTIONS LOCKED. TAP LOCK IN TO CONFIRM YOUR ENTRY.'; }
   else if (selectedPlayerIdx !== null) { p.textContent = 'CHOOSE A TOURNAMENT MARKET FOR ' + currentPlayers[selectedPlayerIdx].name; }
-  else { p.textContent = 'SELECT A WORLD CUP STAR, THEN MATCH THEM TO A MARKET'; }
+  else { p.textContent = 'SELECT A PLAYER, THEN MATCH THEM TO A MARKET'; }
 }
 
 function updateButtons() {
@@ -1800,7 +1800,7 @@ function shuffle(arr) {
 
 function showWelcomeMenu() {
   showModal('👋 WELCOME TO FREEFOLD',
-    'Pick World Cup fixtures, build your prediction cards, and earn points based on how many of your picks come in.\n\nTap "HOW TO PLAY" below for the full rules, or close this to jump straight in.',
+    'Pick fixtures, build your prediction cards, and earn points based on how many of your picks come in.\n\nTap "HOW TO PLAY" below for the full rules, or close this to jump straight in.',
     '<button class="modal-btn" style="background: var(--wc-gold); color: var(--text-dark); margin-bottom:10px;" onclick="closeModal(); showHowToPlay();">📖 HOW TO PLAY</button>' +
     '<button class="modal-btn" style="background: var(--wc-green-dark); margin-bottom:10px;" onclick="closeModal(); showTerms();">📄 TERMS & CONDITIONS</button>'
   );
@@ -1816,14 +1816,13 @@ function toggleMenu() {
 
 function showHowToPlay() {
   showModal('📖 HOW TO PLAY',
-    '1. PICK A FIXTURE\nChoose an upcoming World Cup match from the Fixtures tab.\n\n' +
+    '1. PICK A FIXTURE\nChoose an upcoming match from the Fixtures tab.\n\n' +
     '2. MATCH PLAYERS & MARKETS\nYou\'ll be shown 3 random players and 3 prediction markets (e.g. Anytime Goalscorer, Clean Sheet).\n\n' +
     '3. MAKE YOUR PICKS\nTap a player, then tap a market to assign them. Fill all 3 markets to unlock your entry.\n\n' +
     '4. NEW CARDS\nDon\'t like your options? Use "NEW CARDS" — you get 3 per fixture.\n\n' +
     '5. LOCK IN\nOnce all 3 markets are filled, lock in your picks.\n\n' +
     '6. PLAY FOR FREE\nConfirm your entry to earn potential points, awarded once the match result is in. Each correct pick scores its own points, get 2 of 3 right for a bonus, and all 3 right for an even bigger bonus.\n\n' +
     '7. MINI LEAGUES\nCreate or join a Mini League with friends, submit your Free Play score, and climb the leaderboard!\n\n' +
-    'Note: Clean Sheet picks must go to a goalkeeper, and you can\'t pick a player to score against a teammate\'s clean sheet — the game enforces this automatically.'
   );
 }
 
