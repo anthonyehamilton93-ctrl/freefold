@@ -60,6 +60,16 @@
   
   .brand-title span { color: var(--wc-orange); }
 
+  .brand-logo {
+    height: 44px;
+    width: auto;
+    display: block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   .hamburger {
     display: -webkit-flex;
     display: flex;
@@ -326,19 +336,17 @@
   }
 
   .instruction-bar {
-    border-top: 2px solid var(--wc-gold);
-    border-bottom: 2px solid var(--wc-gold);
+    background: var(--wc-green-dark);
     padding: 10px 14px;
     margin: 8px 0;
     text-align: center;
   }
 
   .instruction-bar p {
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 17px;
     color: var(--wc-gold);
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
   .action-row {
@@ -770,24 +778,39 @@
   }
 
   .card-pop { -webkit-animation: cardPop 0.25s ease forwards; animation: cardPop 0.25s ease forwards; }
+
+  @-webkit-keyframes pulseHighlight {
+    0%, 100% { -webkit-box-shadow: 0 0 0 0 rgba(240,112,32,0.7); box-shadow: 0 0 0 0 rgba(240,112,32,0.7); -webkit-transform: scale(1); transform: scale(1); }
+    50% { -webkit-box-shadow: 0 0 0 10px rgba(240,112,32,0); box-shadow: 0 0 0 10px rgba(240,112,32,0); -webkit-transform: scale(1.03); transform: scale(1.03); }
+  }
+
+  @keyframes pulseHighlight {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240,112,32,0.7); transform: scale(1); }
+    50% { box-shadow: 0 0 0 10px rgba(240,112,32,0); transform: scale(1.03); }
+  }
+
+  .pulse-highlight {
+    -webkit-animation: pulseHighlight 0.8s ease-in-out 3;
+    animation: pulseHighlight 0.8s ease-in-out 3;
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand-title" onclick="forceReturnToSelector()">FREE<span>FOLD</span></div>
+  <img class="brand-logo" src="data:image/png;base64,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" alt="FreeFold" onclick="forceReturnToSelector()">
   <div class="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </header>
 
 <div class="nav-tabs">
-  <button class="nav-tab active" id="tabFixtures" onclick="switchTab('fixtures')">🏆 FIXTURES</button>
-  <button class="nav-tab" id="tabLeague" onclick="switchTab('league')">👥 MINI LEAGUE</button>
+  <button class="nav-tab active" id="tabFixtures" onclick="switchTab('fixtures')">ðŸ† FIXTURES</button>
+  <button class="nav-tab" id="tabLeague" onclick="switchTab('league')">ðŸ‘¥ MINI LEAGUE</button>
 </div>
 
 <div class="step-dots" style="min-height: 40px; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;">
-  <button id="backToFixturesBtn" onclick="forceReturnToSelector()" style="display: none; background: none; border: none; color: var(--wc-gold); font-family: var(--font-display); font-size: 16px; letter-spacing: 1px; cursor: pointer; padding: 4px 16px;">← BACK TO FIXTURES</button>
+  <button id="backToFixturesBtn" onclick="forceReturnToSelector()" style="display: none; background: none; border: none; color: var(--wc-gold); font-family: var(--font-display); font-size: 16px; letter-spacing: 1px; cursor: pointer; padding: 4px 16px;">â† BACK TO FIXTURES</button>
 </div>
 
 <!-- FIXTURE SELECTION -->
@@ -805,12 +828,12 @@
   </div>
   
   <div class="section">
-    <div class="section-header"><h2>MATCH PLAYERS</h2></div>
+    <div class="section-header"><h2>PLAYER CARDS</h2></div>
   </div>
   <div class="players-grid" id="playersGrid"></div>
   
   <div class="section">
-    <div class="section-header"><h2>MATCH MARKETS</h2></div>
+    <div class="section-header"><h2>MARKET CARDS</h2></div>
   </div>
   <div class="markets-grid" id="marketsGrid"></div>
   
@@ -820,23 +843,22 @@
   
   <div class="action-row">
     <button class="action-btn" onclick="regenAll()" id="regenBtn">
-      <div class="btn-icon">🔄</div>
+      <div class="btn-icon">ðŸ”„</div>
       <div class="btn-label">NEW CARDS</div>
       <div class="regen-count" id="regenCount">3 LEFT</div>
     </button>
     <button class="action-btn" onclick="clearAssignments()" id="clearBtn">
-      <div class="btn-icon">✕</div>
+      <div class="btn-icon">âœ•</div>
       <div class="btn-label">CLEAR PICKS</div>
     </button>
     <button class="action-btn" onclick="lockIn()" id="lockBtn" disabled>
-      <div class="btn-icon">🔒</div>
+      <div class="btn-icon">ðŸ”’</div>
       <div class="btn-label">LOCK IN</div>
     </button>
   </div>
   
   <div class="cta-row">
-    <button class="cta-btn" onclick="playFree()" id="playFreeBtn" disabled>PLAY FOR FREE</button>
-    <button class="cta-btn primary" onclick="placeBet()" id="placeBetBtn" disabled>BET ODDS: EVS</button>
+    <button class="cta-btn primary" onclick="playFree()" id="playFreeBtn" disabled style="-webkit-flex: 1 1 100%; flex: 1 1 100%;">PLAY FOR FREE</button>
   </div>
 </div>
 
@@ -851,11 +873,10 @@
     
     <div id="pointsContainer" style="display:none;">
       <div class="points-display">
-        <span id="pointsValue">0</span> POTENTIAL PTS
-        <div class="points-subtitle">⏳ AWARDED ONLY IF YOUR PREDICTIONS COME IN</div>
+        <span id="pointsValue">0</span> MAX POTENTIAL PTS
+        <div class="points-subtitle">â³ AWARDED ONLY IF YOUR PREDICTIONS COME IN â€” SEE BREAKDOWN BELOW</div>
       </div>
-      <button class="share-score-btn" onclick="shareToLeague()">🏅 SUBMIT TO MINI LEAGUE</button>
-      <button class="share-score-btn" onclick="copyScore()" style="margin-top:6px;">📋 COPY SCORE TO CHALLENGE FRIENDS</button>
+      <button class="share-score-btn" onclick="copyScore()">ðŸ“‹ COPY SCORE TO CHALLENGE FRIENDS</button>
     </div>
 
     <div class="entry-summary" id="entrySummary"></div>
@@ -883,7 +904,7 @@
 </div>
 
 <script>
-// ─── 2026 WORLD CUP GROUP L FIXTURES ─────────────────────────────────────────
+// â”€â”€â”€ 2026 WORLD CUP GROUP L FIXTURES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const FIXTURES_POOL = [
   { 
     id: 'eng-cro', 
@@ -935,9 +956,9 @@ const FIXTURES_POOL = [
   }
 ];
 
-// ─── CONFIRMED 2026 WORLD CUP SQUADS (Group L) ───────────────────────────────
+// â”€â”€â”€ CONFIRMED 2026 WORLD CUP SQUADS (Group L) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PLAYER_POOL = [
-  // ENGLAND — Tuchel's 26-man squad (key players: Foden & Palmer OUT, Toney/Rashford/Gordon IN)
+  // ENGLAND â€” Tuchel's 26-man squad (key players: Foden & Palmer OUT, Toney/Rashford/Gordon IN)
   {name:'HARRY KANE',        nation:'England', pos:'FWD'},
   {name:'JUDE BELLINGHAM',   nation:'England', pos:'MID'},
   {name:'BUKAYO SAKA',       nation:'England', pos:'FWD'},
@@ -949,27 +970,27 @@ const PLAYER_POOL = [
   {name:'KOBBIE MAINOO',     nation:'England', pos:'MID'},
   {name:'EBERECHI EZE',      nation:'England', pos:'MID'},
   {name:'REECE JAMES',       nation:'England', pos:'DEF'},
-  {name:'MARC GUÉHI',        nation:'England', pos:'DEF'},
+  {name:'MARC GUÃ‰HI',        nation:'England', pos:'DEF'},
   {name:'EZRI KONSA',        nation:'England', pos:'DEF'},
   {name:'JOHN STONES',       nation:'England', pos:'DEF'},
   {name:'JORDAN PICKFORD',   nation:'England', pos:'GK'},
 
-  // CROATIA — Dalić's squad, Modrić at AC Milan leading his likely final WC
-  {name:'LUKA MODRIĆ',       nation:'Croatia', pos:'MID'},
-  {name:'MATEO KOVAČIĆ',     nation:'Croatia', pos:'MID'},
-  {name:'ANDREJ KRAMARIĆ',   nation:'Croatia', pos:'FWD'},
-  {name:'JOŠKO GVARDIOL',    nation:'Croatia', pos:'DEF'},
-  {name:'IVAN PERIŠIĆ',      nation:'Croatia', pos:'FWD'},
-  {name:'MARIO PAŠALIĆ',     nation:'Croatia', pos:'MID'},
+  // CROATIA â€” DaliÄ‡'s squad, ModriÄ‡ at AC Milan leading his likely final WC
+  {name:'LUKA MODRIÄ†',       nation:'Croatia', pos:'MID'},
+  {name:'MATEO KOVAÄŒIÄ†',     nation:'Croatia', pos:'MID'},
+  {name:'ANDREJ KRAMARIÄ†',   nation:'Croatia', pos:'FWD'},
+  {name:'JOÅ KO GVARDIOL',    nation:'Croatia', pos:'DEF'},
+  {name:'IVAN PERIÅ IÄ†',      nation:'Croatia', pos:'FWD'},
+  {name:'MARIO PAÅ ALIÄ†',     nation:'Croatia', pos:'MID'},
   {name:'MARTIN BATURINA',   nation:'Croatia', pos:'MID'},
-  {name:'PETAR SUČIĆ',       nation:'Croatia', pos:'MID'},
+  {name:'PETAR SUÄŒIÄ†',       nation:'Croatia', pos:'MID'},
   {name:'ANTE BUDIMIR',      nation:'Croatia', pos:'FWD'},
-  {name:'DOMINIK LIVAKOVIĆ', nation:'Croatia', pos:'GK'},
+  {name:'DOMINIK LIVAKOVIÄ†', nation:'Croatia', pos:'GK'},
 
-  // GHANA — Black Stars (Kudus, Semenyo, Williams key)
+  // GHANA â€” Black Stars (Kudus, Semenyo, Williams key)
   {name:'MOHAMMED KUDUS',    nation:'Ghana', pos:'MID'},
   {name:'ANTOINE SEMENYO',   nation:'Ghana', pos:'FWD'},
-  {name:'IÑAKI WILLIAMS',    nation:'Ghana', pos:'FWD'},
+  {name:'IÃ‘AKI WILLIAMS',    nation:'Ghana', pos:'FWD'},
   {name:'JORDAN AYEW',       nation:'Ghana', pos:'FWD'},
   {name:'THOMAS PARTEY',     nation:'Ghana', pos:'MID'},
   {name:'SALIS ABDUL SAMED', nation:'Ghana', pos:'MID'},
@@ -977,13 +998,13 @@ const PLAYER_POOL = [
   {name:'ANDY YIADOM',       nation:'Ghana', pos:'DEF'},
   {name:'LAWRENCE ATI-ZIGI', nation:'Ghana', pos:'GK'},
 
-  // PANAMA — Christiansen's squad, Godoy captain
-  {name:'ANÍBAL GODOY',      nation:'Panama', pos:'MID'},
-  {name:'ISMAEL DÍAZ',       nation:'Panama', pos:'FWD'},
+  // PANAMA â€” Christiansen's squad, Godoy captain
+  {name:'ANÃBAL GODOY',      nation:'Panama', pos:'MID'},
+  {name:'ISMAEL DÃAZ',       nation:'Panama', pos:'FWD'},
   {name:'M. AMIR MURILLO',   nation:'Panama', pos:'DEF'},
   {name:'A. CARRASQUILLA',   nation:'Panama', pos:'MID'},
-  {name:'JOSÉ CÓRDOBA',      nation:'Panama', pos:'MID'},
-  {name:'EDGAR BÁRCENAS',    nation:'Panama', pos:'FWD'},
+  {name:'JOSÃ‰ CÃ“RDOBA',      nation:'Panama', pos:'MID'},
+  {name:'EDGAR BÃRCENAS',    nation:'Panama', pos:'FWD'},
   {name:'CECILIO WATERMAN',  nation:'Panama', pos:'FWD'},
   {name:'ORLANDO MOSQUERA',  nation:'Panama', pos:'GK'}
 ];
@@ -1000,7 +1021,37 @@ const ODDS_MULTIPLIERS = {
   'CLEAN SHEET': 2.8, 'OVER 1.5 TACKLES': 1.9
 };
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ SCORING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Each correct pick scores points based on how hard that market is
+// (derived from its odds multiplier). Get 2 of 3 right and a bonus is
+// added; get all 3 right and a bigger bonus stacks on top.
+const BONUS_TWO_CORRECT = 20;
+const BONUS_THREE_CORRECT = 50; // stacks on top of the 2-correct bonus
+
+function pickPoints(marketName) {
+  return Math.round((ODDS_MULTIPLIERS[marketName] || 2.0) * 10);
+}
+
+// hits: array of 3 booleans (true = that prediction was correct)
+// markets: array of 3 market names in the same order as hits
+function computeEntryScore(hits, markets) {
+  var base = 0;
+  var correctCount = 0;
+  hits.forEach(function(hit, i) {
+    if (hit) { base += pickPoints(markets[i]); correctCount++; }
+  });
+  var bonus = 0;
+  if (correctCount === 2) bonus = BONUS_TWO_CORRECT;
+  if (correctCount === 3) bonus = BONUS_TWO_CORRECT + BONUS_THREE_CORRECT;
+  return base + bonus;
+}
+
+// The maximum points this entry could score if every prediction comes in
+function computeMaxPotential(markets) {
+  return computeEntryScore([true, true, true], markets);
+}
+
+// â”€â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let selectedMatchId = null;
 let currentPlayers = [];
 let currentMarkets = [];
@@ -1008,7 +1059,6 @@ let assignments = {};
 let selectedPlayerIdx = null;
 let regenCount = 3;
 let locked = false;
-let finalCalculatedOdds = "EVS";
 let freePointsValue = 0;
 let timerInterval = null;
 let completedFixtures = [];
@@ -1020,7 +1070,7 @@ let myName = '';
 let leagueCode = '';
 let leagueData = {}; // { code: { name, members: [{name, pts, entries}] } }
 
-// ─── STORAGE HELPERS ─────────────────────────────────────────────────────────
+// â”€â”€â”€ STORAGE HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function storageSet(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
 }
@@ -1032,20 +1082,20 @@ function storageGet(key) {
   } catch(e) { return null; }
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function init() {
   renderSelectorGrid();
   loadSessionState();
   loadLeagueState();
 
   if (!hasSeenRules) {
-    showHowToPlay();
+    showWelcomeMenu();
     hasSeenRules = true;
     saveSessionState();
   }
 }
 
-// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+// â”€â”€â”€ TAB SWITCHING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchTab(tab) {
   document.getElementById('tabFixtures').classList.remove('active');
   document.getElementById('tabLeague').classList.remove('active');
@@ -1073,7 +1123,7 @@ function switchTab(tab) {
   }
 }
 
-// ─── FIXTURE SELECTOR ─────────────────────────────────────────────────────────
+// â”€â”€â”€ FIXTURE SELECTOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSelectorGrid() {
   var grid = document.getElementById('fixtureSelectorGrid');
   if (!grid) return;
@@ -1090,7 +1140,7 @@ function renderSelectorGrid() {
       card.style.borderColor = 'var(--wc-green-dark)';
       card.innerHTML = '<div class="fixture-group" style="color: var(--wc-green-dark);">' + f.group + '</div>' +
         '<div class="fixture-teams" style="text-decoration: line-through;">' + f.teams + '</div>' +
-        '<div class="fixture-meta" style="color: var(--wc-green-dark); font-weight:800;">🔒 LOCKED & SUBMITTED — TAP TO VIEW</div>';
+        '<div class="fixture-meta" style="color: var(--wc-green-dark); font-weight:800;">ðŸ”’ LOCKED & SUBMITTED â€” TAP TO VIEW</div>';
       (function(fid) { card.onclick = function() { showCompletedFixtureReview(fid); }; })(f.id);
     } else {
       var now = new Date();
@@ -1107,7 +1157,7 @@ function renderSelectorGrid() {
       card.innerHTML = '<div class="fixture-group">' + f.group + '</div>' +
         '<div class="fixture-teams">' + f.teams + '</div>' +
         '<div class="fixture-meta">' + f.venue + '</div>' +
-        '<div class="fixture-meta" style="color:#555; margin-top:4px;">⏱ ' + countdown + '</div>';
+        '<div class="fixture-meta" style="color:#555; margin-top:4px;">â± ' + countdown + '</div>';
       (function(fid) { card.onclick = function() { selectMatch(fid); }; })(f.id);
     }
     grid.appendChild(card);
@@ -1116,7 +1166,7 @@ function renderSelectorGrid() {
 
 function pad(n) { return n.toString().padStart(2, '0'); }
 
-// ─── SESSION SAVE/LOAD ────────────────────────────────────────────────────────
+// â”€â”€â”€ SESSION SAVE/LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function saveSessionState() {
   storageSet('freefold_wc_state', {
     selectedMatchId: selectedMatchId,
@@ -1125,7 +1175,6 @@ function saveSessionState() {
     assignments: assignments,
     regenCount: regenCount,
     locked: locked,
-    finalCalculatedOdds: finalCalculatedOdds,
     freePointsValue: freePointsValue,
     completedFixtures: completedFixtures,
     completedEntries: completedEntries,
@@ -1146,41 +1195,24 @@ function loadSessionState() {
       assignments = state.assignments || {};
       regenCount = state.regenCount !== undefined ? state.regenCount : 3;
       locked = state.locked || false;
-      finalCalculatedOdds = state.finalCalculatedOdds || 'EVS';
       freePointsValue = state.freePointsValue || 0;
-      
+
       document.getElementById('regenCount').textContent = regenCount + ' LEFT';
       renderSelectorGrid();
-      
-      if (selectedMatchId) {
-        var match = FIXTURES_POOL.filter(function(f) { return f.id === selectedMatchId; })[0];
-        if (match) {
-          document.getElementById('activeFixtureLabel').textContent = match.teams;
-          startCountdown(match.targetDate);
-          document.getElementById('screen-selector').classList.remove('active');
-          if (locked) {
-            document.getElementById('screen-locked').classList.add('active');
-            document.getElementById('backToFixturesBtn').style.display = 'none';
-            completeEntryDisplay();
-          } else {
-            document.getElementById('screen-game').classList.add('active');
-            document.getElementById('backToFixturesBtn').style.display = 'block';
-          }
-          renderPlayers(); renderMarkets(); updateInstruction(); calculateOdds(); updateButtons();
-          return;
-        }
-      }
     } catch(e) { console.error('Session restore error', e); }
   }
+  // Always land on the fixture selector when the app is freshly opened.
+  // Any in-progress (unlocked) entry is preserved in state and will resume
+  // automatically if the user taps back into that same fixture.
   document.getElementById('backToFixturesBtn').style.display = 'none';
 }
 
-// ─── MATCH SELECT / GAME ──────────────────────────────────────────────────────
+// â”€â”€â”€ MATCH SELECT / GAME â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function selectMatch(matchId) {
   if (completedFixtures.indexOf(matchId) !== -1) return;
   var match = FIXTURES_POOL.filter(function(f) { return f.id === matchId; })[0];
 
-  // If re-entering the same match that's already in progress, resume it — don't regenerate
+  // If re-entering the same match that's already in progress, resume it â€” don't regenerate
   var resuming = (selectedMatchId === matchId && currentPlayers.length > 0);
 
   selectedMatchId = matchId;
@@ -1191,7 +1223,7 @@ function selectMatch(matchId) {
   document.getElementById('backToFixturesBtn').style.display = 'block';
 
   if (resuming) {
-    // Just re-render the existing session — no new cards, regen count unchanged
+    // Just re-render the existing session â€” no new cards, regen count unchanged
     renderPlayers(); renderMarkets(); updateInstruction(); calculateOdds(); updateButtons();
   } else {
     generateNewGameSession();
@@ -1226,7 +1258,7 @@ function generateNewGameSession() {
 
   assignments = {};
   selectedPlayerIdx = null;
-  renderPlayers(); renderMarkets(); updateInstruction(); calculateOdds(); updateButtons();
+  renderPlayers(true); renderMarkets(true); updateInstruction(); calculateOdds(); updateButtons();
   saveSessionState();
 }
 
@@ -1246,15 +1278,15 @@ function buildValidPlayerSet(pool, markets) {
   return shuffle([chosenGK].concat(others));
 }
 
-function renderPlayers() {
+function renderPlayers(animate) {
   var grid = document.getElementById('playersGrid');
   if (!grid) return;
   grid.innerHTML = '';
   currentPlayers.forEach(function(p, i) {
     var isAssigned = Object.values(assignments).indexOf(i) !== -1;
     var card = document.createElement('div');
-    card.className = 'player-card card-pop' + (isAssigned ? ' assigned' : '') + (selectedPlayerIdx === i ? ' selected-player' : '');
-    card.style.animationDelay = (i * 0.06) + 's';
+    card.className = 'player-card' + (animate ? ' card-pop' : '') + (isAssigned ? ' assigned' : '') + (selectedPlayerIdx === i ? ' selected-player' : '');
+    if (animate) card.style.animationDelay = (i * 0.06) + 's';
     var assignedM = null;
     Object.keys(assignments).forEach(function(mk) { if (assignments[mk] === i) assignedM = mk; });
     var tag = assignedM !== null ? '<div class="assigned-market-tag">' + currentMarkets[assignedM] + '</div>' : '';
@@ -1266,7 +1298,7 @@ function renderPlayers() {
   });
 }
 
-function renderMarkets() {
+function renderMarkets(animate) {
   var grid = document.getElementById('marketsGrid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -1274,8 +1306,8 @@ function renderMarkets() {
     var playerIdx = assignments[i];
     var isFilled = playerIdx !== undefined;
     var card = document.createElement('div');
-    card.className = 'market-card card-pop' + (isFilled ? ' filled' : '');
-    card.style.animationDelay = ((i + 3) * 0.06) + 's';
+    card.className = 'market-card' + (animate ? ' card-pop' : '') + (isFilled ? ' filled' : '');
+    if (animate) card.style.animationDelay = ((i + 3) * 0.06) + 's';
     var contents = '<div class="market-name">' + m + '</div>';
     if (isFilled) contents += '<div class="market-player-tag">' + currentPlayers[playerIdx].name + '</div>';
     card.innerHTML = contents;
@@ -1319,13 +1351,13 @@ function getAssignmentConflict(playerIdx, marketIdx, proposedAssignments) {
 
   // Enforce: only a GK should be assigned CLEAN SHEET
   if (currentMarkets[marketIdx] === 'CLEAN SHEET' && player.pos !== 'GK') {
-    return player.name + ' is a ' + player.pos + ', not a goalkeeper — Clean Sheet must be assigned to a GK.';
+    return player.name + ' is a ' + player.pos + ', not a goalkeeper â€” Clean Sheet must be assigned to a GK.';
   }
 
   // Enforce: a goal/assist market can't be assigned to a player from the opposing team of the clean-sheet GK
   if (GOAL_MARKETS.indexOf(market) !== -1 && gkPlayer) {
     if (player.nation !== gkPlayer.nation) {
-      return player.name + ' (' + player.nation + ') can\'t score/assist against ' + gkPlayer.name + '\'s clean sheet — that\'s a direct contradiction.';
+      return player.name + ' (' + player.nation + ') can\'t score/assist against ' + gkPlayer.name + '\'s clean sheet â€” that\'s a direct contradiction.';
     }
   }
 
@@ -1340,7 +1372,7 @@ function getAssignmentConflict(playerIdx, marketIdx, proposedAssignments) {
       if (GOAL_MARKETS.indexOf(currentMarkets[mIdx]) !== -1) {
         var otherPlayer = currentPlayers[testAssignments[mIdx]];
         if (otherPlayer && otherPlayer.nation !== player.nation) {
-          conflict = otherPlayer.name + ' (' + otherPlayer.nation + ') already has a scoring market — can\'t give ' + player.name + ' a clean sheet against them.';
+          conflict = otherPlayer.name + ' (' + otherPlayer.nation + ') already has a scoring market â€” can\'t give ' + player.name + ' a clean sheet against them.';
         }
       }
     });
@@ -1362,8 +1394,8 @@ function selectMarket(mIdx) {
   // Conflict check before committing
   var conflict = getAssignmentConflict(selectedPlayerIdx, mIdx, assignments);
   if (conflict) {
-    showModal('INVALID PICK ⚠️', conflict);
-    return; // Don't clear selectedPlayerIdx — let them try a different combo
+    showModal('INVALID PICK âš ï¸', conflict);
+    return; // Don't clear selectedPlayerIdx â€” let them try a different combo
   }
 
   assignments[mIdx] = selectedPlayerIdx;
@@ -1372,22 +1404,14 @@ function selectMarket(mIdx) {
 }
 
 function calculateOdds() {
-  var combinedOdds = 1.0;
   var itemsAssigned = Object.keys(assignments).length;
-  if (itemsAssigned === 0) {
-    finalCalculatedOdds = 'EVS'; freePointsValue = 0;
-    var btn = document.getElementById('placeBetBtn');
-    if (btn) btn.textContent = 'BET ODDS: EVS';
+  if (itemsAssigned < 3) {
+    freePointsValue = 0;
     return;
   }
-  Object.keys(assignments).forEach(function(mIdx) {
-    combinedOdds *= (ODDS_MULTIPLIERS[currentMarkets[mIdx]] || 2.0);
-  });
-  freePointsValue = Math.round(combinedOdds * 110);
-  var fractionalOddsVal = Math.round(combinedOdds - 1);
-  finalCalculatedOdds = fractionalOddsVal <= 0 ? 'EVS' : (fractionalOddsVal + '/1');
-  var betBtn = document.getElementById('placeBetBtn');
-  if (betBtn) betBtn.textContent = 'BET ODDS: ' + finalCalculatedOdds;
+  // currentMarkets has exactly 3 entries once a full entry is assigned â€”
+  // potential points = max possible if all 3 predictions land
+  freePointsValue = computeMaxPotential(currentMarkets);
 }
 
 function updateInstruction() {
@@ -1395,7 +1419,7 @@ function updateInstruction() {
   if (!bar) return;
   var p = bar.querySelector('p');
   var totalAssigned = Object.keys(assignments).length;
-  if (totalAssigned === 3) { p.textContent = 'MATRIX LOCKED. GENERATE YOUR WORLD CUP BET SLIP NOW.'; }
+  if (totalAssigned === 3) { p.textContent = 'MATRIX LOCKED. TAP LOCK IN TO CONFIRM YOUR ENTRY.'; }
   else if (selectedPlayerIdx !== null) { p.textContent = 'CHOOSE A TOURNAMENT MARKET FOR ' + currentPlayers[selectedPlayerIdx].name; }
   else { p.textContent = 'SELECT A WORLD CUP STAR, THEN MATCH THEM TO A MARKET'; }
 }
@@ -1405,7 +1429,6 @@ function updateButtons() {
   var isComplete = totalAssigned === 3;
   document.getElementById('lockBtn').disabled = !isComplete || locked;
   document.getElementById('playFreeBtn').disabled = !locked;
-  document.getElementById('placeBetBtn').disabled = !locked;
   document.getElementById('regenBtn').disabled = regenCount <= 0 || locked;
 }
 
@@ -1424,7 +1447,7 @@ function regenAll() {
   currentMarkets = shuffle(MARKET_POOL).slice(0, 3);
   currentPlayers = buildValidPlayerSet(filteredSquadPool, currentMarkets);
   assignments = {}; selectedPlayerIdx = null;
-  renderPlayers(); renderMarkets(); updateInstruction(); calculateOdds(); updateButtons(); saveSessionState();
+  renderPlayers(true); renderMarkets(true); updateInstruction(); calculateOdds(); updateButtons(); saveSessionState();
 }
 
 function clearAssignments() {
@@ -1438,13 +1461,19 @@ function lockIn() {
   updateButtons();
   document.getElementById('backToFixturesBtn').style.display = 'none';
   saveSessionState();
-  showModal('SELECTIONS LOCKED', 'Your World Cup matchups have been compiled. Choose your mode below.');
+
+  // Draw attention to the next step instead of showing a popup
+  var playBtn = document.getElementById('playFreeBtn');
+  playBtn.classList.add('pulse-highlight');
+  setTimeout(function() { playBtn.classList.remove('pulse-highlight'); }, 2400);
+
+  var bar = document.getElementById('instructionBar');
+  if (bar) bar.querySelector('p').textContent = 'ðŸ”’ SELECTIONS LOCKED â€” TAP PLAY FOR FREE BELOW TO CONFIRM';
 }
 
-function playFree() { completeEntry('Free Play Challenge', true); }
-function placeBet() { completeEntry('Live Slip Routing [' + finalCalculatedOdds + ']', false); }
+function playFree() { completeEntry(); }
 
-function completeEntry(mode, isFreePlay) {
+function completeEntry() {
   if (selectedMatchId) {
     if (completedFixtures.indexOf(selectedMatchId) === -1) {
       completedFixtures.push(selectedMatchId);
@@ -1454,22 +1483,20 @@ function completeEntry(mode, isFreePlay) {
       players: currentPlayers,
       markets: currentMarkets,
       assignments: assignments,
-      points: isFreePlay ? freePointsValue : null,
-      odds: isFreePlay ? null : finalCalculatedOdds,
-      isFreePlay: isFreePlay
+      points: freePointsValue,
+      isFreePlay: true
     };
   }
   document.getElementById('backToFixturesBtn').style.display = 'none';
-  document.getElementById('lockedTitle').textContent = isFreePlay ? 'CHALLENGE ACTIVE!' : (mode + ' ROUTED!');
-  document.getElementById('lockedDesc').textContent = isFreePlay
-    ? 'Your predictions are live. Submit to your Mini League or copy your score to challenge friends.'
-    : 'Picks successfully routed to the target tournament slip. Good luck!';
-  
+  document.getElementById('lockedTitle').textContent = 'CHALLENGE ACTIVE!';
+
+  // Automatically add this entry's potential points to the user's Mini League (if they're in one)
+  var leagueSubmitMsg = submitToLeague();
+  document.getElementById('lockedDesc').textContent = 'Your predictions are live.' + leagueSubmitMsg + ' Copy your score to challenge friends.';
+
   var pointsContainer = document.getElementById('pointsContainer');
-  if (isFreePlay) {
-    document.getElementById('pointsValue').textContent = freePointsValue;
-    pointsContainer.style.display = 'block';
-  } else { pointsContainer.style.display = 'none'; }
+  document.getElementById('pointsValue').textContent = freePointsValue;
+  pointsContainer.style.display = 'block';
   
   completeEntryDisplay();
 
@@ -1487,17 +1514,25 @@ function completeEntryDisplay() {
   summary.innerHTML = '';
   Object.keys(assignments).forEach(function(mIdx) {
     var pIdx = assignments[mIdx];
+    var market = currentMarkets[mIdx];
     var row = document.createElement('div');
     row.className = 'entry-row';
     row.innerHTML = '<div class="entry-player">' + currentPlayers[pIdx].name + ' (' + currentPlayers[pIdx].nation + ')</div>' +
-      '<div class="entry-arrow">➔</div>' +
-      '<div class="entry-market">' + currentMarkets[mIdx] + '</div>';
+      '<div class="entry-arrow">âž”</div>' +
+      '<div class="entry-market">' + market + ' <span style="color:var(--wc-gold);">(' + pickPoints(market) + ' pts)</span></div>';
     summary.appendChild(row);
   });
+
+  var bonusRow = document.createElement('div');
+  bonusRow.style.cssText = 'padding:10px 0 2px;font-family:var(--font-body);font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);line-height:1.5;';
+  bonusRow.innerHTML = 'ðŸŽ¯ Get 2 of 3 right: +' + BONUS_TWO_CORRECT + ' pts bonus<br>' +
+    'ðŸŽ¯ Get all 3 right: +' + (BONUS_TWO_CORRECT + BONUS_THREE_CORRECT) + ' pts bonus total<br>' +
+    'Max possible for this entry: ' + computeMaxPotential(currentMarkets) + ' pts';
+  summary.appendChild(bonusRow);
 }
 
 function copyScore() {
-  var textToCopy = '🏆 FreeFold World Cup 2026 🏆\nMy picks could earn me ' + freePointsValue + ' PTS in a Group L matrix!\nCan you beat my prediction? Play FreeFold now!';
+  var textToCopy = 'ðŸ† FreeFold World Cup 2026 ðŸ†\nMy picks could earn me ' + freePointsValue + ' PTS in a Group L matrix!\nCan you beat my prediction? Play FreeFold now!';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(textToCopy)
       .then(function() { showModal('COPIED!', 'Score copied to clipboard!'); })
@@ -1537,7 +1572,7 @@ function resetToMatches() {
 function forceReturnToSelector() {
   if (locked) return;
   if (timerInterval) clearInterval(timerInterval);
-  // Do NOT clear selectedMatchId — preserve the in-progress session so re-entering resumes it
+  // Do NOT clear selectedMatchId â€” preserve the in-progress session so re-entering resumes it
   saveSessionState();
   document.getElementById('screen-game').classList.remove('active');
   document.getElementById('screen-locked').classList.remove('active');
@@ -1546,7 +1581,7 @@ function forceReturnToSelector() {
   renderSelectorGrid();
 }
 
-// ─── MINI LEAGUE ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ MINI LEAGUE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadLeagueState() {
   myName = storageGet('freefold_myname') || '';
   leagueCode = storageGet('freefold_leaguecode') || '';
@@ -1574,7 +1609,7 @@ function renderLeagueScreen() {
   // Name setup if not set
   if (!myName) {
     container.innerHTML = '<div class="league-section">' +
-      '<h3>👤 YOUR NAME</h3>' +
+      '<h3>ðŸ‘¤ YOUR NAME</h3>' +
       '<p style="font-family:var(--font-body);font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:12px;">Set your name to appear on leaderboards</p>' +
       '<input class="league-input" id="nameInput" type="text" maxlength="20" placeholder="Enter your name..." />' +
       '<button class="league-btn" onclick="saveName()">SAVE NAME</button>' +
@@ -1588,28 +1623,28 @@ function renderLeagueScreen() {
     // Status bar
     var statusBar = document.createElement('div');
     statusBar.className = 'league-status-bar';
-    statusBar.innerHTML = '<span class="league-name-label">🏅 ' + (league.name || leagueCode) + '</span>' +
+    statusBar.innerHTML = '<span class="league-name-label">ðŸ… ' + (league.name || leagueCode) + '</span>' +
       '<button class="leave-btn" onclick="leaveLeague()">LEAVE</button>';
     container.appendChild(statusBar);
 
     // Share code
     var shareSection = document.createElement('div');
     shareSection.className = 'league-section';
-    shareSection.innerHTML = '<h3>🔗 INVITE FRIENDS</h3>' +
+    shareSection.innerHTML = '<h3>ðŸ”— INVITE FRIENDS</h3>' +
       '<div class="league-code-display">' + leagueCode + '</div>' +
-      '<div class="league-code-hint">Share this code — friends enter it to join your league</div>' +
-      '<button class="league-btn secondary" style="margin-top:12px;" onclick="shareCode()">📋 COPY INVITE CODE</button>';
+      '<div class="league-code-hint">Share this code â€” friends enter it to join your league</div>' +
+      '<button class="league-btn secondary" style="margin-top:12px;" onclick="shareCode()">ðŸ“‹ COPY INVITE CODE</button>';
     container.appendChild(shareSection);
 
     // Leaderboard
     var lbSection = document.createElement('div');
     lbSection.className = 'league-section';
-    lbSection.innerHTML = '<h3>🏆 LEADERBOARD</h3>';
+    lbSection.innerHTML = '<h3>ðŸ† LEADERBOARD</h3>';
 
     var members = (league.members || []).slice().sort(function(a, b) { return (b.pts || 0) - (a.pts || 0) || (b.pendingPts || 0) - (a.pendingPts || 0); });
 
     if (members.length === 0) {
-      lbSection.innerHTML += '<div class="empty-league-msg">No predictions yet — play a fixture round to get on the board!</div>';
+      lbSection.innerHTML += '<div class="empty-league-msg">No predictions yet â€” play a fixture round to get on the board!</div>';
     } else {
       members.forEach(function(member, idx) {
         var rankClass = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? 'bronze' : '';
@@ -1635,7 +1670,7 @@ function renderLeagueScreen() {
     // Create or join league
     var header = document.createElement('div');
     header.className = 'section';
-    header.innerHTML = '<div class="section-header"><h2>👥 MINI LEAGUE</h2></div>';
+    header.innerHTML = '<div class="section-header"><h2>ðŸ‘¥ MINI LEAGUE</h2></div>';
     container.appendChild(header);
 
     var greetBar = document.createElement('div');
@@ -1646,7 +1681,7 @@ function renderLeagueScreen() {
     // Create league
     var createSection = document.createElement('div');
     createSection.className = 'league-section';
-    createSection.innerHTML = '<h3>🆕 CREATE A LEAGUE</h3>' +
+    createSection.innerHTML = '<h3>ðŸ†• CREATE A LEAGUE</h3>' +
       '<p style="font-family:var(--font-body);font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:12px;">Start a private league and invite your friends with a unique code.</p>' +
       '<input class="league-input" id="leagueNameInput" type="text" maxlength="24" placeholder="League name (e.g. Office WC Preds)" />' +
       '<button class="league-btn" onclick="createLeague()">CREATE LEAGUE</button>';
@@ -1655,7 +1690,7 @@ function renderLeagueScreen() {
     // Join league
     var joinSection = document.createElement('div');
     joinSection.className = 'league-section';
-    joinSection.innerHTML = '<h3>🔑 JOIN A LEAGUE</h3>' +
+    joinSection.innerHTML = '<h3>ðŸ”‘ JOIN A LEAGUE</h3>' +
       '<p style="font-family:var(--font-body);font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:12px;">Enter the 6-character code from a friend.</p>' +
       '<input class="league-input" id="joinCodeInput" type="text" maxlength="6" placeholder="Enter code (e.g. AB3X7Z)" style="text-transform:uppercase;" />' +
       '<button class="league-btn" onclick="joinLeague()">JOIN LEAGUE</button>';
@@ -1664,7 +1699,7 @@ function renderLeagueScreen() {
     // Change name
     var nameSection = document.createElement('div');
     nameSection.className = 'league-section';
-    nameSection.innerHTML = '<h3>✏️ CHANGE NAME</h3>' +
+    nameSection.innerHTML = '<h3>âœï¸ CHANGE NAME</h3>' +
       '<input class="league-input" id="changeNameInput" type="text" maxlength="20" placeholder="' + myName + '" />' +
       '<button class="league-btn secondary" onclick="changeName()">UPDATE NAME</button>';
     container.appendChild(nameSection);
@@ -1698,7 +1733,7 @@ function createLeague() {
   leagueCode = code;
   saveLeagueState();
   renderLeagueScreen();
-  showModal('LEAGUE CREATED! 🎉', 'Your league code is:\n\n' + code + '\n\nShare this with friends so they can join!');
+  showModal('LEAGUE CREATED! ðŸŽ‰', 'Your league code is:\n\n' + code + '\n\nShare this with friends so they can join!');
 }
 
 function joinLeague() {
@@ -1707,7 +1742,7 @@ function joinLeague() {
   var code = input.value.trim().toUpperCase();
   if (!leagueData[code]) {
     // Create a placeholder if code doesn't exist locally (cross-device note)
-    showModal('CODE NOT FOUND', 'That code was not found on this device.\n\nNote: Mini Leagues are currently stored locally — make sure the league creator shares their saved data, or that you\'re on the same device.\n\nFuture update: cloud sync coming soon!');
+    showModal('CODE NOT FOUND', 'That code was not found on this device.\n\nNote: Mini Leagues are currently stored locally â€” make sure the league creator shares their saved data, or that you\'re on the same device.\n\nFuture update: cloud sync coming soon!');
     return;
   }
   leagueCode = code;
@@ -1726,7 +1761,7 @@ function leaveLeague() {
 
 function shareCode() {
   if (!leagueCode) return;
-  var text = '🏆 Join my FreeFold World Cup 2026 Mini League!\nCode: ' + leagueCode + '\nLet\'s see who can score the most points!';
+  var text = 'ðŸ† Join my FreeFold World Cup 2026 Mini League!\nCode: ' + leagueCode + '\nLet\'s see who can score the most points!';
   if (navigator.share) {
     navigator.share({ title: 'FreeFold Mini League', text: text })
       .catch(function() { fallbackCopy(text); });
@@ -1735,10 +1770,11 @@ function shareCode() {
   }
 }
 
-function shareToLeague() {
+// Called automatically when an entry is completed. Returns a short status
+// string for the locked-screen message â€” does NOT show its own popup.
+function submitToLeague() {
   if (!leagueCode || !leagueData[leagueCode]) {
-    showModal('NO LEAGUE', 'You\'re not in a Mini League yet.\n\nSwitch to the Mini League tab to create or join one, then come back to submit your prediction!');
-    return;
+    return ' Join a Mini League from the menu below to start competing with friends.';
   }
   var league = leagueData[leagueCode];
   var member = (league.members || []).find(function(m) { return m.name === myName; });
@@ -1749,10 +1785,10 @@ function shareToLeague() {
     league.members.push({ name: myName, pts: 0, pendingPts: freePointsValue, entries: 1 });
   }
   saveLeagueState();
-  showModal('PREDICTION SUBMITTED! 🏅', 'Your potential ' + freePointsValue + ' PTS have been added as PENDING in\n"' + (league.name || leagueCode) + '"!\n\nPoints are only awarded once the match result confirms your picks. Check the Mini League tab to see pending vs confirmed points.');
+  return ' Added to "' + (league.name || leagueCode) + '" as pending points.';
 }
 
-// ─── UTIL ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ UTIL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function shuffle(arr) {
   var a = arr.slice();
   for (var i = a.length - 1; i > 0; i--) {
@@ -1762,32 +1798,40 @@ function shuffle(arr) {
   return a;
 }
 
+function showWelcomeMenu() {
+  showModal('ðŸ‘‹ WELCOME TO FREEFOLD',
+    'Pick World Cup fixtures, build your prediction cards, and earn points based on how many of your picks come in.\n\nTap "HOW TO PLAY" below for the full rules, or close this to jump straight in.',
+    '<button class="modal-btn" style="background: var(--wc-gold); color: var(--text-dark); margin-bottom:10px;" onclick="closeModal(); showHowToPlay();">ðŸ“– HOW TO PLAY</button>' +
+    '<button class="modal-btn" style="background: var(--wc-green-dark); margin-bottom:10px;" onclick="closeModal(); showTerms();">ðŸ“„ TERMS & CONDITIONS</button>'
+  );
+}
+
 function toggleMenu() {
   showModal('MENU',
-    'Welcome to FreeFold!\n\nTap "HOW TO PLAY" below for the rules, or close this to keep playing.\n\n— FreeFold Team',
-    '<button class="modal-btn" style="background: var(--wc-gold); color: var(--text-dark); margin-bottom:10px;" onclick="closeModal(); showHowToPlay();">📖 HOW TO PLAY</button>' +
-    '<button class="modal-btn" style="background: var(--wc-green-dark); margin-bottom:10px;" onclick="closeModal(); showTerms();">📄 TERMS & CONDITIONS</button>'
+    'Tap "HOW TO PLAY" below for the rules, or close this to keep playing.\n\nâ€” FreeFold Team',
+    '<button class="modal-btn" style="background: var(--wc-gold); color: var(--text-dark); margin-bottom:10px;" onclick="closeModal(); showHowToPlay();">ðŸ“– HOW TO PLAY</button>' +
+    '<button class="modal-btn" style="background: var(--wc-green-dark); margin-bottom:10px;" onclick="closeModal(); showTerms();">ðŸ“„ TERMS & CONDITIONS</button>'
   );
 }
 
 function showHowToPlay() {
-  showModal('📖 HOW TO PLAY',
+  showModal('ðŸ“– HOW TO PLAY',
     '1. PICK A FIXTURE\nChoose an upcoming World Cup match from the Fixtures tab.\n\n' +
-    '2. MATCH PLAYERS & MARKETS\nYou\'ll be shown 3 random players and 3 betting markets (e.g. Anytime Goalscorer, Clean Sheet).\n\n' +
-    '3. MAKE YOUR PICKS\nTap a player, then tap a market to assign them. Fill all 3 markets to unlock your slip.\n\n' +
-    '4. NEW CARDS\nDon\'t like your options? Use "NEW CARDS" — you get 3 per fixture.\n\n' +
+    '2. MATCH PLAYERS & MARKETS\nYou\'ll be shown 3 random players and 3 prediction markets (e.g. Anytime Goalscorer, Clean Sheet).\n\n' +
+    '3. MAKE YOUR PICKS\nTap a player, then tap a market to assign them. Fill all 3 markets to unlock your entry.\n\n' +
+    '4. NEW CARDS\nDon\'t like your options? Use "NEW CARDS" â€” you get 3 per fixture.\n\n' +
     '5. LOCK IN\nOnce all 3 markets are filled, lock in your picks.\n\n' +
-    '6. PLAY FREE OR BET\nPlay for free to earn points, or route your picks as a real bet slip.\n\n' +
+    '6. PLAY FOR FREE\nConfirm your entry to earn potential points, awarded once the match result is in. Each correct pick scores its own points, get 2 of 3 right for a bonus, and all 3 right for an even bigger bonus.\n\n' +
     '7. MINI LEAGUES\nCreate or join a Mini League with friends, submit your Free Play score, and climb the leaderboard!\n\n' +
-    'Note: Clean Sheet picks must go to a goalkeeper, and you can\'t pick a player to score against a teammate\'s clean sheet — the game enforces this automatically.'
+    'Note: Clean Sheet picks must go to a goalkeeper, and you can\'t pick a player to score against a teammate\'s clean sheet â€” the game enforces this automatically.'
   );
 }
 
 function showTerms() {
   showModal('TERMS & CONDITIONS',
-    '1. FreeFold is a promotional prediction tool intended for recreational use only.\n\n' +
+    '1. FreeFold is a free-to-play prediction game intended for recreational use only.\n\n' +
     '2. Entries must be finalised before the official kick-off time shown on each fixture card.\n\n' +
-    '3. Point metrics and calculated bet slip odds are illustrative and carry no independent cash value unless routed via an active vendor slip.\n\n' +
+    '3. Points are illustrative and carry no cash value.\n\n' +
     '4. Mini League scores are stored locally on this device. Cloud sync coming in a future update.');
 }
 
@@ -1809,7 +1853,7 @@ function showCompletedFixtureReview(fixtureId) {
     countdown = 'Match has started / kicked off';
   }
 
-  var msg = f.teams + '\n' + f.venue + '\n\n⏱ ' + countdown + '\n\n';
+  var msg = f.teams + '\n' + f.venue + '\n\nâ± ' + countdown + '\n\n';
 
   if (entry) {
     msg += 'YOUR SELECTIONS:\n';
@@ -1817,18 +1861,14 @@ function showCompletedFixtureReview(fixtureId) {
       var pIdx = entry.assignments[mIdx];
       var player = entry.players[pIdx];
       var market = entry.markets[mIdx];
-      msg += '• ' + player.name + ' (' + player.nation + ') ➔ ' + market + '\n';
+      msg += 'â€¢ ' + player.name + ' (' + player.nation + ') âž” ' + market + '\n';
     });
-    if (entry.isFreePlay) {
-      msg += '\nPotential points (pending result): ' + entry.points + ' PTS';
-    } else {
-      msg += '\nBet slip odds: ' + entry.odds;
-    }
+    msg += '\nPotential points (pending result): ' + entry.points + ' PTS';
   } else {
     msg += 'No selection details found for this fixture.';
   }
 
-  showModal('🔒 ' + f.teams, msg);
+  showModal('ðŸ”’ ' + f.teams, msg);
 }
 
 function showModal(title, msg, extraHtml) {
