@@ -174,6 +174,73 @@
     color: #333;
   }
 
+  /* EASY / HARD mode buttons inside the fixture card */
+  .fixture-card-row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: stretch;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .fixture-card-main { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
+
+  .fixture-mode-btns {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: center;
+    justify-content: center;
+    gap: 8px;
+    -webkit-flex: 0 0 92px;
+    flex: 0 0 92px;
+  }
+
+  .mode-btn {
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: 1px;
+    line-height: 1;
+    padding: 9px 6px;
+    border: 3px solid var(--text-dark);
+    cursor: pointer;
+    text-align: center;
+    color: var(--white);
+    -webkit-transition: -webkit-transform 0.08s ease;
+    transition: transform 0.08s ease;
+  }
+
+  .mode-btn:active { -webkit-transform: scale(0.95); transform: scale(0.95); }
+
+  .mode-btn small {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  .mode-btn.easy { background: var(--wc-green-dark); }
+  .mode-btn.hard { background: var(--wc-orange-dark); }
+
+  /* Mode badge shown on the game screen */
+  .mode-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 2px 10px;
+    margin-left: 6px;
+    border: 2px solid var(--wc-gold);
+    color: var(--text-dark);
+    vertical-align: middle;
+  }
+  .mode-badge.easy { background: #6fd08a; }
+  .mode-badge.hard { background: var(--wc-orange); }
+
   /* GAME SCREEN CSS */
   .expiry-banner {
     background: var(--wc-green-dark);
@@ -824,11 +891,11 @@
 <!-- GAME -->
 <div class="screen" id="screen-game">
   <div class="expiry-banner">
-    <p><span id="activeFixtureLabel">MATCH</span> | KICKS OFF IN: <span id="expiryTimer">00D 00H 00M</span></p>
+    <p><span id="activeFixtureLabel">MATCH</span><span class="mode-badge hard" id="activeModeBadge">HARD</span><br>KICKS OFF IN: <span id="expiryTimer">00D 00H 00M</span></p>
   </div>
   
   <div class="section">
-    <div class="section-header"><h2>PLAYER CARDS</h2></div>
+    <div class="section-header"><h2 id="subjectHeader">PLAYER CARDS</h2></div>
   </div>
   <div class="players-grid" id="playersGrid"></div>
   
@@ -1021,38 +1088,87 @@ const ODDS_MULTIPLIERS = {
   'CLEAN SHEET': 2.8, 'OVER 1.5 TACKLES': 1.9
 };
 
-// ─── SCORING ──────────────────────────────────────────────────────────────────
-// Each correct pick scores points based on how hard that market is
-// (derived from its odds multiplier). Get 2 of 3 right and a bonus is
-// added; get all 3 right and a bigger bonus stacks on top.
-const BONUS_TWO_CORRECT = 20;
-const BONUS_THREE_CORRECT = 50; // stacks on top of the 2-correct bonus
+// ─── EASY (TEAM) MODE DATA ──────────────────────────────────────────────────
+// Easy mode swaps player cards for TEAM cards (one of the two teams shows
+// twice across the three cards) and uses team-level betting markets. Team
+// markets carry shorter odds than player markets, so easy mode pays less.
+const EASY_MARKET_POOL = [
+  'TO WIN', 'TO WIN OR DRAW', 'TO SCORE FIRST', 'TO SCORE 2+ GOALS',
+  'CLEAN SHEET', 'TO RECEIVE A CARD', 'WIN TO NIL'
+];
 
-function pickPoints(marketName) {
-  return Math.round((ODDS_MULTIPLIERS[marketName] || 2.0) * 10);
+const EASY_ODDS = {
+  'TO WIN': 2.0, 'TO WIN OR DRAW': 1.35, 'TO SCORE FIRST': 2.1,
+  'TO SCORE 2+ GOALS': 2.7, 'CLEAN SHEET': 2.4, 'TO RECEIVE A CARD': 1.5,
+  'WIN TO NIL': 3.4
+};
+
+// ─── SCORING ──────────────────────────────────────────────────────────────────
+// Fairness: every player in the same mode competes for the SAME total potential
+// (targetPotential), no matter which cards they were dealt. We distribute that
+// fixed target across the three picks IN PROPORTION to each market's real odds,
+// so longer-odds picks are still worth more within your own hand — but two
+// different players' hands always add up to the same ceiling. Harder mode has a
+// bigger target, so it pays more. Hitting 2 of 3 adds a bonus; all 3 adds more.
+const MODE_CONFIG = {
+  easy: { label: 'EASY', subject: 'TEAM',   targetPotential: 120, bonusTwo: 15, bonusThree: 35 },
+  hard: { label: 'HARD', subject: 'PLAYER', targetPotential: 220, bonusTwo: 25, bonusThree: 60 }
+};
+
+function modeCfg(mode) { return MODE_CONFIG[mode] || MODE_CONFIG.hard; }
+
+function getOdds(marketName) {
+  if (EASY_ODDS[marketName] !== undefined) return EASY_ODDS[marketName];
+  if (ODDS_MULTIPLIERS[marketName] !== undefined) return ODDS_MULTIPLIERS[marketName];
+  return 2.0;
+}
+
+// Returns an array of 3 point values, scaled so they sum to the mode's target
+// while staying proportional to each market's odds (largest-remainder rounding).
+function scaledPickPoints(markets, mode) {
+  var target = modeCfg(mode).targetPotential;
+  var oddsArr = markets.map(getOdds);
+  var sum = oddsArr.reduce(function(a, b) { return a + b; }, 0) || 1;
+  var raw = oddsArr.map(function(o) { return (o / sum) * target; });
+  var floored = raw.map(Math.floor);
+  var used = floored.reduce(function(a, b) { return a + b; }, 0);
+  var remainder = target - used;
+  var order = raw
+    .map(function(v, i) { return { i: i, frac: v - Math.floor(v) }; })
+    .sort(function(a, b) { return b.frac - a.frac; });
+  for (var k = 0; k < remainder && order.length; k++) { floored[order[k % order.length].i]++; }
+  return floored;
+}
+
+// Points for a single market within an entry (mode + full market set aware)
+function pickPoints(markets, mode, idx) {
+  return scaledPickPoints(markets, mode)[idx];
 }
 
 // hits: array of 3 booleans (true = that prediction was correct)
 // markets: array of 3 market names in the same order as hits
-function computeEntryScore(hits, markets) {
+function computeEntryScore(hits, markets, mode) {
+  var cfg = modeCfg(mode);
+  var pts = scaledPickPoints(markets, mode);
   var base = 0;
   var correctCount = 0;
   hits.forEach(function(hit, i) {
-    if (hit) { base += pickPoints(markets[i]); correctCount++; }
+    if (hit) { base += pts[i]; correctCount++; }
   });
   var bonus = 0;
-  if (correctCount === 2) bonus = BONUS_TWO_CORRECT;
-  if (correctCount === 3) bonus = BONUS_TWO_CORRECT + BONUS_THREE_CORRECT;
+  if (correctCount === 2) bonus = cfg.bonusTwo;
+  if (correctCount === 3) bonus = cfg.bonusTwo + cfg.bonusThree;
   return base + bonus;
 }
 
 // The maximum points this entry could score if every prediction comes in
-function computeMaxPotential(markets) {
-  return computeEntryScore([true, true, true], markets);
+function computeMaxPotential(markets, mode) {
+  return computeEntryScore([true, true, true], markets, mode);
 }
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let selectedMatchId = null;
+let currentMode = 'hard';
 let currentPlayers = [];
 let currentMarkets = [];
 let assignments = {}; 
@@ -1154,11 +1270,23 @@ function renderSelectorGrid() {
       } else {
         countdown = 'LIVE / STARTED';
       }
-      card.innerHTML = '<div class="fixture-group">' + f.group + '</div>' +
-        '<div class="fixture-teams">' + f.teams + '</div>' +
-        '<div class="fixture-meta">' + f.venue + '</div>' +
-        '<div class="fixture-meta" style="color:#555; margin-top:4px;">⏱ ' + countdown + '</div>';
-      (function(fid) { card.onclick = function() { selectMatch(fid); }; })(f.id);
+      card.innerHTML = '<div class="fixture-card-row">' +
+          '<div class="fixture-card-main">' +
+            '<div class="fixture-group">' + f.group + '</div>' +
+            '<div class="fixture-teams">' + f.teams + '</div>' +
+            '<div class="fixture-meta">' + f.venue + '</div>' +
+            '<div class="fixture-meta" style="color:#555; margin-top:4px;">⏱ ' + countdown + '</div>' +
+          '</div>' +
+          '<div class="fixture-mode-btns">' +
+            '<button class="mode-btn easy" type="button">EASY<small>TEAM</small></button>' +
+            '<button class="mode-btn hard" type="button">HARD<small>PLAYER</small></button>' +
+          '</div>' +
+        '</div>';
+      (function(fid) {
+        var btns = card.querySelectorAll('.mode-btn');
+        btns[0].onclick = function(e) { e.stopPropagation(); selectMatch(fid, 'easy'); };
+        btns[1].onclick = function(e) { e.stopPropagation(); selectMatch(fid, 'hard'); };
+      })(f.id);
     }
     grid.appendChild(card);
   });
@@ -1170,6 +1298,7 @@ function pad(n) { return n.toString().padStart(2, '0'); }
 function saveSessionState() {
   storageSet('freefold_wc_state', {
     selectedMatchId: selectedMatchId,
+    currentMode: currentMode,
     currentPlayers: currentPlayers,
     currentMarkets: currentMarkets,
     assignments: assignments,
@@ -1190,6 +1319,7 @@ function loadSessionState() {
       completedEntries = state.completedEntries || {};
       hasSeenRules = state.hasSeenRules || false;
       selectedMatchId = state.selectedMatchId;
+      currentMode = state.currentMode || 'hard';
       currentPlayers = state.currentPlayers || [];
       currentMarkets = state.currentMarkets || [];
       assignments = state.assignments || {};
@@ -1208,14 +1338,18 @@ function loadSessionState() {
 }
 
 // ─── MATCH SELECT / GAME ──────────────────────────────────────────────────────
-function selectMatch(matchId) {
+function selectMatch(matchId, mode) {
   if (completedFixtures.indexOf(matchId) !== -1) return;
   var match = FIXTURES_POOL.filter(function(f) { return f.id === matchId; })[0];
 
-  // If re-entering the same match that's already in progress, resume it — don't regenerate
-  var resuming = (selectedMatchId === matchId && currentPlayers.length > 0);
+  mode = (mode === 'easy' || mode === 'hard') ? mode : 'hard';
+
+  // If re-entering the same match AND mode that's already in progress, resume it
+  var resuming = (selectedMatchId === matchId && currentMode === mode && currentPlayers.length > 0);
 
   selectedMatchId = matchId;
+  currentMode = mode;
+  applyModeChrome();
   document.getElementById('activeFixtureLabel').textContent = match.teams;
   startCountdown(match.targetDate);
   document.getElementById('screen-selector').classList.remove('active');
@@ -1249,12 +1383,44 @@ function startCountdown(targetDate) {
   timerInterval = setInterval(updateTimer, 60000);
 }
 
+// Reflect the active mode in the game-screen header + badge
+function applyModeChrome() {
+  var cfg = modeCfg(currentMode);
+  var header = document.getElementById('subjectHeader');
+  if (header) header.textContent = cfg.subject + ' CARDS';
+  var badge = document.getElementById('activeModeBadge');
+  if (badge) {
+    badge.textContent = cfg.label;
+    badge.className = 'mode-badge ' + currentMode;
+  }
+}
+
+// Build the cards + markets for the active mode, retrying until the board is
+// solvable (a valid no-contradiction full assignment exists).
+function buildBoardForMode(activeMatch) {
+  if (currentMode === 'easy') {
+    for (var attempt = 0; attempt < 40; attempt++) {
+      var markets = shuffle(EASY_MARKET_POOL).slice(0, 3);
+      var cards = buildTeamCards(activeMatch.nations);
+      if (existsValidEasyBoard(cards, markets)) {
+        currentMarkets = markets;
+        currentPlayers = cards;
+        return;
+      }
+    }
+    // Fallback (extremely unlikely): take last attempt anyway
+    currentMarkets = shuffle(EASY_MARKET_POOL).slice(0, 3);
+    currentPlayers = buildTeamCards(activeMatch.nations);
+  } else {
+    var squad = PLAYER_POOL.filter(function(p) { return activeMatch.nations.indexOf(p.nation) !== -1; });
+    currentMarkets = shuffle(MARKET_POOL).slice(0, 3);
+    currentPlayers = buildValidPlayerSet(squad, currentMarkets);
+  }
+}
+
 function generateNewGameSession() {
   var activeMatch = FIXTURES_POOL.filter(function(f) { return f.id === selectedMatchId; })[0];
-  var filteredSquadPool = PLAYER_POOL.filter(function(p) { return activeMatch.nations.indexOf(p.nation) !== -1; });
-
-  currentMarkets = shuffle(MARKET_POOL).slice(0, 3);
-  currentPlayers = buildValidPlayerSet(filteredSquadPool, currentMarkets);
+  buildBoardForMode(activeMatch);
 
   assignments = {};
   selectedPlayerIdx = null;
@@ -1278,6 +1444,64 @@ function buildValidPlayerSet(pool, markets) {
   return shuffle([chosenGK].concat(others));
 }
 
+// ─── EASY (TEAM) MODE HELPERS ─────────────────────────────────────────────────
+// Build three TEAM cards: both teams plus a random repeat of one of them, so a
+// fixture's two teams are spread across three cards (one shows twice).
+function teamCard(nation, opponent) {
+  return { name: nation.toUpperCase(), nation: nation, pos: 'TEAM', isTeam: true, opponent: opponent };
+}
+
+function buildTeamCards(nations) {
+  var a = nations[0], b = nations[1];
+  var third = Math.random() < 0.5 ? a : b;
+  return shuffle([
+    teamCard(a, b),
+    teamCard(b, a),
+    teamCard(third, third === a ? b : a)
+  ]);
+}
+
+// Predicate helpers describing what a team market implies about the match
+function emTeamScores(m) { return ['TO WIN', 'WIN TO NIL', 'TO SCORE FIRST', 'TO SCORE 2+ GOALS'].indexOf(m) !== -1; }
+function emTeamWins(m)   { return ['TO WIN', 'WIN TO NIL'].indexOf(m) !== -1; }
+function emTeamNoLoss(m) { return ['TO WIN', 'WIN TO NIL', 'TO WIN OR DRAW'].indexOf(m) !== -1; }
+function emOppNoScore(m) { return ['CLEAN SHEET', 'WIN TO NIL'].indexOf(m) !== -1; } // implies the OTHER team scores 0
+function emScoresFirst(m){ return m === 'TO SCORE FIRST'; }
+
+// Directed contradiction check: does (marketA on teamA) clash with (marketB on teamB)?
+function easyDirConflict(mA, tA, mB, tB) {
+  // A says tA wins -> the other team loses, so it can't be the no-loss team
+  if (emTeamWins(mA) && tB !== tA && emTeamNoLoss(mB)) {
+    return tA + ' "' + mA + '" means ' + tB + ' lose — that clashes with ' + tB + ' "' + mB + '".';
+  }
+  // A keeping a clean sheet (or win to nil) means the other team fails to score
+  if (emOppNoScore(mA) && tB !== tA && emTeamScores(mB)) {
+    return tA + ' "' + mA + '" means ' + tB + ' don\'t score — that clashes with ' + tB + ' "' + mB + '".';
+  }
+  // Only one team can score the first goal
+  if (emScoresFirst(mA) && emScoresFirst(mB) && tA !== tB) {
+    return 'Only one team can score first — pick a different combination.';
+  }
+  return null;
+}
+
+function easyPairConflict(mA, tA, mB, tB) {
+  return easyDirConflict(mA, tA, mB, tB) || easyDirConflict(mB, tB, mA, tA);
+}
+
+// Is there any full team->market assignment with no contradictions? (solvability)
+function existsValidEasyBoard(cards, markets) {
+  var perms = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+  return perms.some(function(p) {
+    for (var i = 0; i < 3; i++) {
+      for (var j = i + 1; j < 3; j++) {
+        if (easyPairConflict(markets[i], cards[p[i]].nation, markets[j], cards[p[j]].nation)) return false;
+      }
+    }
+    return true;
+  });
+}
+
 function renderPlayers(animate) {
   var grid = document.getElementById('playersGrid');
   if (!grid) return;
@@ -1290,8 +1514,9 @@ function renderPlayers(animate) {
     var assignedM = null;
     Object.keys(assignments).forEach(function(mk) { if (assignments[mk] === i) assignedM = mk; });
     var tag = assignedM !== null ? '<div class="assigned-market-tag">' + currentMarkets[assignedM] + '</div>' : '';
+    var subLine = p.isTeam ? ('VS ' + p.opponent.toUpperCase()) : p.nation;
     card.innerHTML = '<div class="player-name">' + p.name + '</div>' +
-      '<div class="player-nation">' + p.nation + '</div>' +
+      '<div class="player-nation">' + subLine + '</div>' +
       '<div class="player-pos-badge">' + p.pos + '</div>' + tag;
     (function(idx) { card.onclick = function() { if (!locked) selectPlayer(idx); }; })(i);
     grid.appendChild(card);
@@ -1336,6 +1561,20 @@ function getAssignmentConflict(playerIdx, marketIdx, proposedAssignments) {
   var testAssignments = {};
   Object.keys(proposedAssignments).forEach(function(k) { testAssignments[k] = proposedAssignments[k]; });
   testAssignments[marketIdx] = playerIdx;
+
+  // Easy (team) mode: check every assigned pair for an outcome contradiction
+  if (currentMode === 'easy') {
+    var keys = Object.keys(testAssignments);
+    for (var a = 0; a < keys.length; a++) {
+      for (var b = a + 1; b < keys.length; b++) {
+        var mA = currentMarkets[keys[a]], tA = currentPlayers[testAssignments[keys[a]]].nation;
+        var mB = currentMarkets[keys[b]], tB = currentPlayers[testAssignments[keys[b]]].nation;
+        var reason = easyPairConflict(mA, tA, mB, tB);
+        if (reason) return reason;
+      }
+    }
+    return null;
+  }
 
   // Find any CLEAN SHEET assignment
   var cleanSheetEntry = null;
@@ -1411,7 +1650,7 @@ function calculateOdds() {
   }
   // currentMarkets has exactly 3 entries once a full entry is assigned —
   // potential points = max possible if all 3 predictions land
-  freePointsValue = computeMaxPotential(currentMarkets);
+  freePointsValue = computeMaxPotential(currentMarkets, currentMode);
 }
 
 function updateInstruction() {
@@ -1419,9 +1658,10 @@ function updateInstruction() {
   if (!bar) return;
   var p = bar.querySelector('p');
   var totalAssigned = Object.keys(assignments).length;
+  var subject = modeCfg(currentMode).subject; // 'TEAM' or 'PLAYER'
   if (totalAssigned === 3) { p.textContent = 'SELECTIONS LOCKED. TAP LOCK IN TO CONFIRM YOUR ENTRY.'; }
-  else if (selectedPlayerIdx !== null) { p.textContent = 'CHOOSE A TOURNAMENT MARKET FOR ' + currentPlayers[selectedPlayerIdx].name; }
-  else { p.textContent = 'SELECT A PLAYER, THEN MATCH THEM TO A MARKET'; }
+  else if (selectedPlayerIdx !== null) { p.textContent = 'CHOOSE A MARKET FOR ' + currentPlayers[selectedPlayerIdx].name; }
+  else { p.textContent = 'SELECT A ' + subject + ', THEN MATCH IT TO A MARKET'; }
 }
 
 function updateButtons() {
@@ -1443,9 +1683,7 @@ function regenAll() {
   regenCount--;
   document.getElementById('regenCount').textContent = regenCount + ' LEFT';
 
-  var filteredSquadPool = PLAYER_POOL.filter(function(p) { return activeMatch.nations.indexOf(p.nation) !== -1; });
-  currentMarkets = shuffle(MARKET_POOL).slice(0, 3);
-  currentPlayers = buildValidPlayerSet(filteredSquadPool, currentMarkets);
+  buildBoardForMode(activeMatch);
   assignments = {}; selectedPlayerIdx = null;
   renderPlayers(true); renderMarkets(true); updateInstruction(); calculateOdds(); updateButtons(); saveSessionState();
 }
@@ -1484,6 +1722,7 @@ function completeEntry() {
       markets: currentMarkets,
       assignments: assignments,
       points: freePointsValue,
+      mode: currentMode,
       isFreePlay: true
     };
   }
@@ -1512,22 +1751,25 @@ function completeEntryDisplay() {
   var summary = document.getElementById('entrySummary');
   if (!summary) return;
   summary.innerHTML = '';
+  var cfg = modeCfg(currentMode);
+  var pts = scaledPickPoints(currentMarkets, currentMode);
   Object.keys(assignments).forEach(function(mIdx) {
     var pIdx = assignments[mIdx];
     var market = currentMarkets[mIdx];
+    var subject = currentPlayers[pIdx].isTeam ? currentPlayers[pIdx].name : (currentPlayers[pIdx].name + ' (' + currentPlayers[pIdx].nation + ')');
     var row = document.createElement('div');
     row.className = 'entry-row';
-    row.innerHTML = '<div class="entry-player">' + currentPlayers[pIdx].name + ' (' + currentPlayers[pIdx].nation + ')</div>' +
+    row.innerHTML = '<div class="entry-player">' + subject + '</div>' +
       '<div class="entry-arrow">➔</div>' +
-      '<div class="entry-market">' + market + ' <span style="color:var(--wc-gold);">(' + pickPoints(market) + ' pts)</span></div>';
+      '<div class="entry-market">' + market + ' <span style="color:var(--wc-gold);">(' + pts[mIdx] + ' pts)</span></div>';
     summary.appendChild(row);
   });
 
   var bonusRow = document.createElement('div');
   bonusRow.style.cssText = 'padding:10px 0 2px;font-family:var(--font-body);font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);line-height:1.5;';
-  bonusRow.innerHTML = '🎯 Get 2 of 3 right: +' + BONUS_TWO_CORRECT + ' pts bonus<br>' +
-    '🎯 Get all 3 right: +' + (BONUS_TWO_CORRECT + BONUS_THREE_CORRECT) + ' pts bonus total<br>' +
-    'Max possible for this entry: ' + computeMaxPotential(currentMarkets) + ' pts';
+  bonusRow.innerHTML = '🎯 Get 2 of 3 right: +' + cfg.bonusTwo + ' pts bonus<br>' +
+    '🎯 Get all 3 right: +' + (cfg.bonusTwo + cfg.bonusThree) + ' pts bonus total<br>' +
+    cfg.label + ' MODE — max possible for this entry: ' + computeMaxPotential(currentMarkets, currentMode) + ' pts';
   summary.appendChild(bonusRow);
 }
 
@@ -1855,12 +2097,14 @@ function showCompletedFixtureReview(fixtureId) {
   var msg = f.teams + '\n' + f.venue + '\n\n⏱ ' + countdown + '\n\n';
 
   if (entry) {
-    msg += 'YOUR SELECTIONS:\n';
+    var entryMode = entry.mode || 'hard';
+    msg += modeCfg(entryMode).label + ' MODE\n\nYOUR SELECTIONS:\n';
     Object.keys(entry.assignments).forEach(function(mIdx) {
       var pIdx = entry.assignments[mIdx];
       var player = entry.players[pIdx];
       var market = entry.markets[mIdx];
-      msg += '• ' + player.name + ' (' + player.nation + ') ➔ ' + market + '\n';
+      var subject = player.isTeam ? player.name : (player.name + ' (' + player.nation + ')');
+      msg += '• ' + subject + ' ➔ ' + market + '\n';
     });
     msg += '\nPotential points (pending result): ' + entry.points + ' PTS';
   } else {
